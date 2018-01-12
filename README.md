@@ -12,6 +12,7 @@ I found that there's no Lua Torch version so that I created one. I tried as much
     - torchx
     - unsup
     - svm
+    - rex_posix
 
 ## Run exercise
 Exercise 1 as an example.
