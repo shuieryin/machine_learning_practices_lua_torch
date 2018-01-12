@@ -4,7 +4,7 @@ I found that there's no Lua Torch version so that I created one. I tried as much
 ## Pre-requisites
 - [Install Torch7](http://torch.ch/docs/getting-started.html#_)
 - [Install iTorch](https://github.com/facebookarchive/iTorch#installing-itorch)
-- `luarocks` install follow rocks
+- `luarocks` install following rocks
     - matio
     - lpeg
     - distributions
