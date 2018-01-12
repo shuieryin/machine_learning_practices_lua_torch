@@ -1,4 +1,4 @@
-# [Machine learning exercises](https://www.coursera.org/learn/machine-learning) - Lua Torch version
+# [Machine learning](https://www.coursera.org/learn/machine-learning) exercises - Lua Torch version
 I found that there's no Lua Torch version so that I created one. I tried as much as i can to translate from gnu octave to lua torch, please raise issue if you found anythings weird or awkward. Thanks.
 
 ## Pre-requisites
