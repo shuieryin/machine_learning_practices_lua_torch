@@ -21,5 +21,5 @@ cd src/machine-learning-ex1/ex1
 th ex1.lua
 ```
 
-## Last
-Please let me know if anything went wrong. Enjoy!
+## Enjoy!
+Please let me know if anything went wrong.
