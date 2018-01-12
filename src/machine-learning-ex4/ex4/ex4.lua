@@ -11,13 +11,13 @@ require "ex4_func"
 local matio = require 'matio'
 local Plot = require 'itorch.Plot'
 
---%% Machine Learning Online Class - Exercise 4 Neural Network Learning
---%  Instructions
---%  ------------
+-- Machine Learning Online Class - Exercise 4 Neural Network Learning
+--  Instructions
+--  ------------
 
---%  This file contains code that helps you get started on the
---%  linear exercise. You will need to complete the following functions
---%  in this exericse:
+--  This file contains code that helps you get started on the
+--  linear exercise. You will need to complete the following functions
+--  in this exericse:
 
 require 'sigmoidGradient'
 require 'randInitializeWeights'
@@ -26,8 +26,8 @@ require 'displayData'
 require 'checkNNGradients'
 require 'predict'
 
---%  For this exercise, you will not need to change any code in this file,
---%  or any other files other than those mentioned above.
+--  For this exercise, you will not need to change any code in this file,
+--  or any other files other than those mentioned above.
 
 -- Setup the parameters you will use for this exercise
 local input_layer_size = 400  -- 20x20 Input Images of Digits

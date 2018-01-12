@@ -33,7 +33,7 @@ require 'normalEqn.lua'
 -- y refers to the profit in $10,000s
 
 -- ==================== Part 1: Basic Function ====================
---% Complete warmUpExercise.lua
+-- Complete warmUpExercise.lua
 print('Running warmUpExercise ...')
 print('5x5 Identity Matrix:')
 print(warmUpExercise())
