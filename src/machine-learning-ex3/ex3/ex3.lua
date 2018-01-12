@@ -6,7 +6,6 @@
 package.path = package.path .. ";../../../lib/?.lua"
 
 require "util"
-require "torch"
 require "ex3_func"
 
 -- Machine Learning Online Class - Exercise 3 | Part 1: One-vs-all

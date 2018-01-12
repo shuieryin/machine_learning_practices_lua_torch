@@ -5,7 +5,6 @@
 
 require "optim"
 require "image"
-require "torch"
 local matio = require 'matio'
 
 function loadData()

@@ -6,7 +6,6 @@
 package.path = package.path .. ";../../../lib/?.lua"
 
 require "util"
-require "torch"
 require "ex3_func"
 local matio = require 'matio'
 
