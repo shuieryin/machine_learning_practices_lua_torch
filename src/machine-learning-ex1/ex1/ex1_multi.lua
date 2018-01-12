@@ -35,8 +35,6 @@ require 'normalEqn.lua'
 --  parts of the code below for various experiments (e.g., changing
 --  learning rates).
 
--- Initialization
-
 -- ================ Part 1: Feature Normalization ================
 print('Loading data ...\n')
 local X, y, theta, X_ori = loadData("ex1data2.txt")
