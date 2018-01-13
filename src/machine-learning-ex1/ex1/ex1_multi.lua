@@ -29,7 +29,7 @@ require 'computeCost'
 require 'gradientDescentMulti'
 require 'computeCostMulti'
 require 'featureNormalize'
-require 'normalEqn.lua'
+require 'normalEqn'
 
 --  For this part of the exercise, you will need to change some
 --  parts of the code below for various experiments (e.g., changing

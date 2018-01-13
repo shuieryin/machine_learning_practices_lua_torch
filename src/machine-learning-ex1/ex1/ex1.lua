@@ -23,8 +23,8 @@ require 'gradientDescent'
 require 'computeCost'
 require 'gradientDescentMulti'
 require 'computeCostMulti'
-require 'featureNormalize.lua'
-require 'normalEqn.lua'
+require 'featureNormalize'
+require 'normalEqn'
 
 --  For this exercise, you will not need to change any code in this file,
 --  or any other files other than those mentioned above.
