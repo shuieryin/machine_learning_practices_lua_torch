@@ -90,10 +90,7 @@ print(finalTheta)
 
 -- Estimate the price of a 1650 sq-ft, 3 br house
 -- ====================== YOUR CODE HERE ======================
-local sq_norm = (1650 - mu[1][1]) / sigma[1][1]
-local br_norm = (3 - mu[1][2]) / sigma[1][2]
-local house = torch.Tensor({ { 1, sq_norm, br_norm } })
-local price = house * finalTheta -- You should change this
+local price = 0 -- You should change this
 -- ============================================================
 print("Predicted price of a 1650 sq-ft, 3 br house (using gradient descent):", price:sum())
 
