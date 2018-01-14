@@ -56,7 +56,9 @@ net:add(nn.Linear(input_layer_size, hidden_layer_size))
 net:add(nn.Tanh())
 net:add(nn.Linear(hidden_layer_size, hidden_layer_size))
 net:add(nn.Tanh())
-net:add(nn.Linear(hidden_layer_size, num_labels))
+net:add(nn.Linear(hidden_layer_size, math.floor(hidden_layer_size / 2)))
+net:add(nn.Tanh())
+net:add(nn.Linear(math.floor(hidden_layer_size / 2), num_labels))
 net:add(nn.Tanh())
 
 local costHistory = {}
