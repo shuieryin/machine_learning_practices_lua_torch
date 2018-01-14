@@ -8,7 +8,6 @@ package.path = package.path .. ";../../../lib/?.lua"
 require "optim"
 require "util"
 require "ex4_func"
-require 'displayData'
 
 -- Setup the parameters you will use for this exercise
 local input_layer_size = 400  -- 20x20 Input Images of Digits
@@ -18,7 +17,7 @@ local num_labels = 10          -- 10 labels, from 1 to 10
 
 local X, y = loadData()
 local m = X:size(1)
-local trainingSetBoundary = math.floor(m * 0.7)
+local trainingSetBoundary = math.floor(m * 0.8)
 local cvSetBoundary = trainingSetBoundary + math.floor((m - trainingSetBoundary) / 2)
 local randomOrder = torch.randperm(m)
 local trainOrder = randomOrder[{ { 1, trainingSetBoundary } }]
@@ -54,13 +53,15 @@ end
 
 local net = nn.Sequential()  -- make a multi-layer perceptron
 net:add(nn.Linear(input_layer_size, hidden_layer_size))
-net:add(nn.Sigmoid())
+net:add(nn.Tanh())
+net:add(nn.Linear(hidden_layer_size, hidden_layer_size))
+net:add(nn.Tanh())
 net:add(nn.Linear(hidden_layer_size, num_labels))
-net:add(nn.Sigmoid())
+net:add(nn.Tanh())
 
 local costHistory = {}
 local learningRate = 0.01
-local criterion = nn.BCECriterion()
+local criterion = nn.MSECriterion()
 local trainErrorHistory = {}
 local cvErrorHistory = {}
 local accuracyHistory = {}
