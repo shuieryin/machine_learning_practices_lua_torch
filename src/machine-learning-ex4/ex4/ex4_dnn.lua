@@ -52,9 +52,9 @@ end
 -- neural network parameters.
 
 local net = nn.Sequential()  -- make a multi-layer perceptron
-net:add(nn.Linear(input_layer_size, hidden_layer_size))
+net:add(nn.Linear(input_layer_size, math.floor(hidden_layer_size * 1.5)))
 net:add(nn.ReLU())
-net:add(nn.Linear(hidden_layer_size, hidden_layer_size))
+net:add(nn.Linear(math.floor(hidden_layer_size * 1.5), hidden_layer_size))
 net:add(nn.ReLU())
 net:add(nn.Linear(hidden_layer_size, math.floor(hidden_layer_size / 2)))
 net:add(nn.ReLU())
@@ -89,10 +89,10 @@ local cvErrorFunc = function()
     return cvError / cvM
 end
 
-local targetErrorDiff = 0.005
+local targetErrorDiff = 0.01
 local count = 1
 local last_str = ''
-while true do
+while count <= 50 do
     local trainError = nnTorch(net, y_labels, Xtrain, Ytrain, criterion, learningRate, trainErrorFunc)
     local cost = net:getParameters():sum()
     local cvError = cvErrorFunc()
