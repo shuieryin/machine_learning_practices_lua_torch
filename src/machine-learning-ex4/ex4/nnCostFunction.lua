@@ -6,7 +6,6 @@
 
 require 'sigmoidGradient'
 
-local y_labels_map = {}
 function nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, lambda)
     --NNCOSTFUNCTION Implements the neural network cost function for a two layer
     --neural network which performs classification
