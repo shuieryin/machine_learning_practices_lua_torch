@@ -263,17 +263,19 @@ function nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labe
     return J, grad
 end
 
+local dropout = nn.Dropout(0.1)
 function nnTorch(net, y_labels, X, y, criterion, learningRate, errFunc)
     local m = X:size(1)
     local err = 0
     for i = 1, m do
         local y_label = y_labels[y[i][1]]
         local x = X[i]
-        local pred = net:forward(x)
+        local curX = dropout:forward(x)
+        local pred = net:forward(curX)
         err = err + errFunc(pred, y_label)
         net:zeroGradParameters()
         local critGrad = criterion:backward(pred, y_label)
-        net:backward(x, critGrad)
+        net:backward(curX, critGrad)
         net:updateParameters(learningRate)
     end
     return err / m
