@@ -61,7 +61,6 @@ net:add(nn.ReLU())
 net:add(nn.Linear(math.floor(hidden_layer_size / 2), num_labels))
 net:add(nn.Tanh())
 
-local costHistory = {}
 local learningRate = 0.02
 local criterion = nn.MSECriterion()
 local trainErrorHistory = {}
@@ -101,9 +100,7 @@ local count = 1
 local last_str = ''
 while count <= 50 do
     local trainError = nnTorch(net, y_labels, Xtrain, Ytrain, criterion, learningRate, trainErrorFunc, dropout)
-    local cost = net:getParameters():sum()
     local cvError = cvErrorFunc()
-    costHistory[count] = cost
     trainErrorHistory[count] = trainError
     cvErrorHistory[count] = cvError
     local trainAccuracy = predict(net, Xtrain, Ytrain)
@@ -115,7 +112,6 @@ while count <= 50 do
 
     io.write(('\b \b'):rep(#last_str))
     local str = "iter " .. count ..
-            " | cost: " .. cost ..
             --" | train error: " .. trainError ..
             --" | cv error: " .. cvError ..
             " | error diff : " .. errorDiff ..
@@ -134,15 +130,6 @@ while count <= 50 do
     count = count + 1
 end
 print('')
-
--- plot costHistory
-plotTable({
-    [1] = {
-        data = costHistory,
-        desc = 'Cost convergence',
-        color = 'blue'
-    }
-}, 'Cost history', 'Iter times', 'Cost', 'costHistory')
 
 -- plot error
 plotTable({
