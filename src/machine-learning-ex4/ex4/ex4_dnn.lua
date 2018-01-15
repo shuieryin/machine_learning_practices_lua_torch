@@ -53,16 +53,16 @@ end
 
 local net = nn.Sequential()  -- make a multi-layer perceptron
 net:add(nn.Linear(input_layer_size, hidden_layer_size))
-net:add(nn.Tanh())
+net:add(nn.ReLU())
 net:add(nn.Linear(hidden_layer_size, hidden_layer_size))
-net:add(nn.Tanh())
+net:add(nn.ReLU())
 net:add(nn.Linear(hidden_layer_size, math.floor(hidden_layer_size / 2)))
-net:add(nn.Tanh())
+net:add(nn.ReLU())
 net:add(nn.Linear(math.floor(hidden_layer_size / 2), num_labels))
 net:add(nn.Tanh())
 
 local costHistory = {}
-local learningRate = 0.01
+local learningRate = 0.02
 local criterion = nn.MSECriterion()
 local trainErrorHistory = {}
 local cvErrorHistory = {}
@@ -89,7 +89,7 @@ local cvErrorFunc = function()
     return cvError / cvM
 end
 
-local targetErrorDiff = 1e-06
+local targetErrorDiff = 0.005
 local count = 1
 local last_str = ''
 while true do
@@ -103,7 +103,7 @@ while true do
     local accuracy = pred:eq(Ytest:long()):sum() / Ytest:size(1)
     accuracyHistory[count] = accuracy
     local lastCvError = cvErrorHistory[count - 1] or 0
-    local cvErrorDiff = cvError - lastCvError
+    local cvErrorDiff = math.abs(cvError - lastCvError)
 
     io.write(('\b \b'):rep(#last_str))
     local str = "iter " .. count ..
@@ -117,7 +117,7 @@ while true do
     last_str = str
     if lastCvError ~= 0 then
         cvErrorDiffHistory[#cvErrorDiffHistory + 1] = cvErrorDiff
-        if cvErrorDiff > targetErrorDiff then
+        if trainError < targetErrorDiff then
             break
         end
     end
