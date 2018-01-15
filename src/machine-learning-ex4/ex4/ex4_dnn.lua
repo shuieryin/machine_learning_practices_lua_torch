@@ -89,29 +89,39 @@ local cvErrorFunc = function()
     return cvError / cvM
 end
 
-local targetErrorDiff = 0.01
+local predict = function(curNet, X, y)
+    local predict_max, pred = curNet:forward(X):max(2)
+    local accuracy = pred:eq(y:long()):sum() / y:size(1)
+    return accuracy
+end
+
+local dropout = nn.Dropout(0.01)
+local targetErrorDiff = 0.005
 local count = 1
 local last_str = ''
 while count <= 50 do
-    local trainError = nnTorch(net, y_labels, Xtrain, Ytrain, criterion, learningRate, trainErrorFunc)
+    local trainError = nnTorch(net, y_labels, Xtrain, Ytrain, criterion, learningRate, trainErrorFunc, dropout)
     local cost = net:getParameters():sum()
     local cvError = cvErrorFunc()
     costHistory[count] = cost
     trainErrorHistory[count] = trainError
     cvErrorHistory[count] = cvError
-    local predict_max, pred = net:forward(Xtest):max(2)
-    local accuracy = pred:eq(Ytest:long()):sum() / Ytest:size(1)
-    accuracyHistory[count] = accuracy
+    local trainAccuracy = predict(net, Xtrain, Ytrain)
+    local cvAccuracy = predict(net, Xcv, Ycv)
+    local testAccuracy = predict(net, Xtest, Ytest)
+    accuracyHistory[count] = testAccuracy
     local lastCvError = cvErrorHistory[count - 1] or 0
     local cvErrorDiff = math.abs(cvError - lastCvError)
 
     io.write(('\b \b'):rep(#last_str))
     local str = "iter " .. count ..
             " | cost: " .. cost ..
-            " | train error: " .. trainError ..
-            " | cv error: " .. cvError ..
-            " | cv error diff : " .. cvErrorDiff ..
-            " | accuracy: " .. accuracy
+            --" | train error: " .. trainError ..
+            --" | cv error: " .. cvError ..
+            " | error diff : " .. cvErrorDiff ..
+            " | train accuracy: " .. trainAccuracy ..
+            " | cv accuracy: " .. cvAccuracy ..
+            " | test accuracy: " .. testAccuracy
     io.write(str)
     io.flush()
     last_str = str

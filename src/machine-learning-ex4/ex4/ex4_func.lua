@@ -263,8 +263,7 @@ function nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labe
     return J, grad
 end
 
-local dropout = nn.Dropout(0.1)
-function nnTorch(net, y_labels, X, y, criterion, learningRate, errFunc)
+function nnTorch(net, y_labels, X, y, criterion, learningRate, errFunc, dropout)
     local m = X:size(1)
     local err = 0
     for i = 1, m do
