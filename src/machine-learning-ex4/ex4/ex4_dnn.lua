@@ -67,7 +67,7 @@ local criterion = nn.MSECriterion()
 local trainErrorHistory = {}
 local cvErrorHistory = {}
 local accuracyHistory = {}
-local cvErrorDiffHistory = {}
+local errorDiffHistory = {}
 net:training()
 local trainErrorFunc = function(pred, y)
     return criterion:forward(pred, y)
@@ -96,7 +96,7 @@ local predict = function(curNet, X, y)
 end
 
 local dropout = nn.Dropout(0.01)
-local targetErrorDiff = 0.005
+local targetErrorDiff = 5e-6
 local count = 1
 local last_str = ''
 while count <= 50 do
@@ -111,14 +111,14 @@ while count <= 50 do
     local testAccuracy = predict(net, Xtest, Ytest)
     accuracyHistory[count] = testAccuracy
     local lastCvError = cvErrorHistory[count - 1] or 0
-    local cvErrorDiff = math.abs(cvError - lastCvError)
+    local errorDiff = math.abs(trainError - cvError)
 
     io.write(('\b \b'):rep(#last_str))
     local str = "iter " .. count ..
             " | cost: " .. cost ..
             --" | train error: " .. trainError ..
             --" | cv error: " .. cvError ..
-            " | error diff : " .. cvErrorDiff ..
+            " | error diff : " .. errorDiff ..
             " | train accuracy: " .. trainAccuracy ..
             " | cv accuracy: " .. cvAccuracy ..
             " | test accuracy: " .. testAccuracy
@@ -126,8 +126,8 @@ while count <= 50 do
     io.flush()
     last_str = str
     if lastCvError ~= 0 then
-        cvErrorDiffHistory[#cvErrorDiffHistory + 1] = cvErrorDiff
-        if trainError < targetErrorDiff then
+        errorDiffHistory[#errorDiffHistory + 1] = errorDiff
+        if errorDiff < targetErrorDiff then
             break
         end
     end
@@ -162,7 +162,7 @@ plotTable({
 -- plot cvErrorDiffHistory
 plotTable({
     [1] = {
-        data = cvErrorDiffHistory,
+        data = errorDiffHistory,
         desc = 'Cv error diff',
         color = 'blue'
     }
