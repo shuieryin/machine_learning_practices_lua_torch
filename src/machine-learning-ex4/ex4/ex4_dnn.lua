@@ -17,7 +17,7 @@ local num_labels = 10          -- 10 labels, from 1 to 10
 
 local X, y = loadData()
 local m = X:size(1)
-local trainingSetBoundary = math.floor(m * 0.7)
+local trainingSetBoundary = math.floor(m * 0.98)
 local cvSetBoundary = trainingSetBoundary + math.floor((m - trainingSetBoundary) / 2)
 local randomOrder = torch.randperm(m)
 local trainOrder = randomOrder[{ { 1, trainingSetBoundary } }]
