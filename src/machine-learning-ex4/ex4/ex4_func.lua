@@ -263,12 +263,17 @@ function nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labe
     return J, grad
 end
 
-function nnTorch(net, y_labels, X, y, criterion, learningRate, errFunc, dropout)
+function nnTorch(net, y_labels, X, y, criterion, learningRate, errFunc, dropout, miniBatchSize)
     local m = X:size(1)
     local err = 0
-    for i = 1, m do
-        local y_label = y_labels[y[i][1]]
-        local x = X[i]
+    for i = 1, m, miniBatchSize do
+        local y_label = torch.Tensor(miniBatchSize, y_labels:size(1))
+        for j = 1, miniBatchSize do
+            y_label[j] = y_labels[y[i + j - 1][1]]
+        end
+        y_label = torch.reshape(y_label, y_label:numel())
+        local x = X[{ { i, i + miniBatchSize - 1 } }]
+        x = torch.reshape(x, x:numel())
         local curX = dropout:forward(x)
         local pred = net:forward(curX)
         err = err + errFunc(pred, y_label)
