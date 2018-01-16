@@ -5,7 +5,6 @@
 
 package.path = package.path .. ";../../../lib/?.lua"
 
-require "optim"
 require "util"
 require "ex4_func"
 
