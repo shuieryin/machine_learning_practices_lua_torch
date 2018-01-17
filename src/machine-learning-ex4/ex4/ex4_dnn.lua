@@ -16,7 +16,7 @@ local num_labels = 10          -- 10 labels, from 1 to 10
 
 local X, y = loadData()
 local m = X:size(1)
-local trainingSetBoundary = math.floor(m * 0.8)
+local trainingSetBoundary = math.floor(m * 0.9)
 local cvSetBoundary = trainingSetBoundary + math.floor((m - trainingSetBoundary) / 2)
 local randomOrder = torch.randperm(m)
 local trainOrder = randomOrder[{ { 1, trainingSetBoundary } }]
@@ -52,13 +52,13 @@ end
 
 local miniBatchSize = 1
 local net = nn.Sequential()  -- make a multi-layer perceptron
-net:add(nn.Linear(input_layer_size * miniBatchSize, math.floor(hidden_layer_size * 1.5) * miniBatchSize))
+net:add(nn.Linear(input_layer_size * miniBatchSize, math.floor(hidden_layer_size * 2) * miniBatchSize))
 net:add(nn.ReLU())
-net:add(nn.Linear(math.floor(hidden_layer_size * 1.5) * miniBatchSize, hidden_layer_size * miniBatchSize))
+net:add(nn.Linear(math.floor(hidden_layer_size * 2) * miniBatchSize, math.floor(hidden_layer_size / 1.5) * miniBatchSize))
 net:add(nn.ReLU())
-net:add(nn.Linear(hidden_layer_size * miniBatchSize, math.floor(hidden_layer_size / 2) * miniBatchSize))
-net:add(nn.ReLU())
-net:add(nn.Linear(math.floor(hidden_layer_size / 2) * miniBatchSize, num_labels * miniBatchSize))
+--net:add(nn.Linear(hidden_layer_size * miniBatchSize, math.floor(hidden_layer_size / 2) * miniBatchSize))
+--net:add(nn.ReLU())
+net:add(nn.Linear(math.floor(hidden_layer_size / 1.5) * miniBatchSize, num_labels * miniBatchSize))
 net:add(nn.Tanh())
 
 local learningRate = 0.02
@@ -68,26 +68,16 @@ local cvErrorHistory = {}
 local accuracyHistory = {}
 local errorDiffHistory = {}
 net:training()
-local trainErrorFunc = function(pred, y)
+local errorFunc = function(pred, y)
     return criterion:forward(pred, y)
 end
 local y_labels = torch.eye(num_labels)
 
-local cvErrorFunc = function()
-    local cvError = 0
-    for k = 1, cvM, miniBatchSize do
-        local y_label = torch.Tensor(miniBatchSize, y_labels:size(1))
-        for j = 1, miniBatchSize do
-            y_label[j] = y_labels[y[k + j - 1][1]]
-        end
-        y_label = torch.reshape(y_label, y_label:numel())
-        local x = Xcv[{ { k, k + miniBatchSize - 1 } }]
-        x = torch.reshape(x, x:numel())
-        local predCv = net:forward(x)
-        cvError = cvError + criterion:forward(predCv, y_label)
-    end
-    return cvError / cvM
+local YcvLabels = torch.Tensor(cvM, y_labels:size(1))
+for j = 1, cvM do
+    YcvLabels[j] = y_labels[Ycv[j][1]]
 end
+local XcvReshape = torch.reshape(Xcv, Xcv:size(1) / miniBatchSize, Xcv:size(2) * miniBatchSize)
 
 local predict = function(curNet, X, y)
     local x = torch.reshape(X, X:size(1) / miniBatchSize, X:size(2) * miniBatchSize)
@@ -103,8 +93,9 @@ local targetErrorDiff = 5e-6
 local count = 1
 local last_str = ''
 while count <= 50 do
-    local trainError = nnTorch(net, y_labels, Xtrain, Ytrain, criterion, learningRate, trainErrorFunc, dropout, miniBatchSize)
-    local cvError = cvErrorFunc()
+    local trainError = nnTorch(net, y_labels, Xtrain, Ytrain, criterion, learningRate, errorFunc, dropout, miniBatchSize)
+    local predCv = net:forward(XcvReshape)
+    local cvError = errorFunc(predCv, YcvLabels)
     trainErrorHistory[count] = trainError
     cvErrorHistory[count] = cvError
     local trainAccuracy = predict(net, Xtrain, Ytrain)
@@ -114,8 +105,8 @@ while count <= 50 do
     local lastCvError = cvErrorHistory[count - 1] or 0
     local errorDiff = math.abs(trainError - cvError)
 
-    io.write(('\b \b'):rep(#last_str))
-    local str = "iter " .. count ..
+    io.write(('\b \b'):rep(#last_str + 1))
+    local str = "\niter " .. count ..
             --" | train error: " .. trainError ..
             --" | cv error: " .. cvError ..
             " | error diff : " .. errorDiff ..
