@@ -3,7 +3,7 @@
 --- DateTime: 03/01/2018 2:46 PM
 ---
 
-package.path = package.path .. ";../../../lib/?.lua"
+require "../../../lib/util"
 
 require "util"
 require "image"

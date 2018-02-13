@@ -3,7 +3,7 @@
 --- DateTime: 13/12/2017 11:07 PM
 ---
 
-package.path = package.path .. ";../../../lib/?.lua"
+require "../../../lib/util"
 
 require "util"
 require "ex3_func"

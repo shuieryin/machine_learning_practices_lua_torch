@@ -3,7 +3,7 @@
 --- DateTime: 04/01/2018 2:43 PM
 ---
 
-package.path = package.path .. ";../../../lib/?.lua"
+require "../../../lib/util"
 
 require "util"
 require "image"
@@ -225,7 +225,7 @@ for i = 1, sel:size(1) do
     plot_z[i] = X[{ sel[i][1], 3 }]
 end
 
---- don't know hot to plot color, please suppliment if you know how
+--- don't know how to plot color, please suppliment if you know how
 gnuplot.scatter3(plot_x, plot_y, plot_z)
 
 pause()
