@@ -11,8 +11,8 @@ function loadData(filename)
         columnNum[i] = i
     end
     local X_ori = data:index(2, torch.LongTensor(columnNum))
-    local X = torch.Tensor(data:size()[1], 1):fill(1):cat(X_ori, 2)
+    local X = torch.ones(data:size()[1], 1):cat(X_ori, 2)
     local y = data:select(2, colSize)
-    local theta = torch.Tensor(colSize, 1):fill(0)
+    local theta = torch.zeros(colSize, 1)
     return X, y, theta, X_ori
 end
