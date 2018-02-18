@@ -409,18 +409,26 @@ function hsv(K)
 end
 
 function length(X)
-    local length = X:size(1)
-    local dim = X:dim()
-    if dim > 1 then
-        for i = 1, X:dim() do
-            local curLen = X:size(i)
-            if curLen > length then
-                length = curLen
-                break
+    if type(X) == "table" then
+        local length = 0
+        for _,_ in ipairs(X) do
+            length = length + 1
+        end
+        return length
+    else
+        local length = X:size(1)
+        local dim = X:dim()
+        if dim > 1 then
+            for i = 1, X:dim() do
+                local curLen = X:size(i)
+                if curLen > length then
+                    length = curLen
+                    break
+                end
             end
         end
+        return length
     end
-    return length
 end
 
 function det(X)
