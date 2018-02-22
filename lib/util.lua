@@ -3,8 +3,11 @@
 --- DateTime: 03/12/2017 5:07 PM
 ---
 
+require "image"
+require "hdf5"
 local Plot = require 'itorch.Plot'
 local paths = require "paths"
+
 openCmd = "start"
 if package.config:sub(1, 1):match("^/") then
     openCmd = "open"
@@ -305,13 +308,21 @@ function plotTable(datas, title, xTitle, yTitle, filename)
     itorchHtml(plot, filename .. '.html')
 end
 
-function shuffle_tensor(tensor)
-    local shuffle_indexes = torch.randperm(tensor:size(1))
-    local tensor_shuffled = torch.Tensor(tensor:size())
-    for i = 1, tensor:size(1), 1 do
-        tensor_shuffled[i] = tensor[shuffle_indexes[i]]
+function shuffle_tensor(tensor, dim, perm)
+    if not dim then
+        dim = 1
     end
-    return tensor_shuffled
+
+    if not perm then
+        perm = torch.randperm(tensor:size(dim))
+    end
+
+    local shuffle_indexes = perm
+    local tensor_shuffled = torch.Tensor(tensor:size())
+    for i = 1, tensor:size(dim), 1 do
+        tensor_shuffled:select(dim, i)[{}] = tensor:select(dim, shuffle_indexes[i])
+    end
+    return tensor_shuffled, perm
 end
 
 function minus(a, b)
@@ -474,4 +485,43 @@ function diag(X)
         diagMatrix[{ i, i }] = src[i]
     end
     return diagMatrix
+end
+
+function plot_decision_boundary(model, X, Y, title, axesStr, libDir)
+    if not title then
+        title = ""
+    end
+
+    if not axesStr then
+        axesStr = ""
+    end
+
+    if not libDir then
+        libDir = "."
+    end
+
+    local fname = 'temp.png'
+    --# Set min and max values and give it some padding
+    local x_min, x_max = X[1]:min() - 1, X[1]:max() + 1
+    local y_min, y_max = X[2]:min() - 1, X[2]:max() + 1
+    local h = 0.01
+    --# Generate a grid of points with distance h between them
+    local xx, yy = meshgrid(torch.range(x_min, x_max, h), torch.range(y_min, y_max, h))
+    --# Predict the function value for the whole grid
+    local Z = model(torch.reshape(xx, xx:numel()):cat(torch.reshape(yy, yy:numel()), 2))
+
+    local h5fname = paths.cwd() .. '/temp.h5'
+    local tempFile = hdf5.open(h5fname, 'w')
+    tempFile:write('X', X)
+    tempFile:write('y', Y)
+    tempFile:write('Z', Z)
+    tempFile:close()
+
+    os.execute("python3 " .. libDir .. "/pdb.py" .. " '" .. h5fname .. "' '" .. title .. "' '" .. axesStr .. "'")
+
+    os.remove(h5fname)
+    local image_data_pic = image.load(fname)
+    image_data_pic = image_data_pic[{{1, 3}}]
+    itorch.image(image_data_pic)
+    os.remove(fname)
 end
