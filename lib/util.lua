@@ -422,7 +422,7 @@ end
 function length(X)
     if type(X) == "table" then
         local length = 0
-        for _,_ in ipairs(X) do
+        for _, _ in ipairs(X) do
             length = length + 1
         end
         return length
@@ -521,7 +521,13 @@ function plot_decision_boundary(model, X, Y, title, axesStr, libDir)
 
     os.remove(h5fname)
     local image_data_pic = image.load(fname)
-    image_data_pic = image_data_pic[{{1, 3}}]
+    image_data_pic = image_data_pic[{ { 1, 3 } }]
     itorch.image(image_data_pic)
     os.remove(fname)
+end
+
+function net_summary(net)
+    for k, v in pairs(net["modules"]) do
+        print(tostring(net["modules"][k]))
+    end
 end
