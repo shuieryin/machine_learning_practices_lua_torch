@@ -341,8 +341,9 @@ function times(a, b)
     return torch.cmul(a, b)
 end
 
-function bsxfun(oper, a, b, pos)
-    pos = pos or 1
+function bsxfun(oper, a, b)
+    local adim = a:dim()
+    local bdim = b:dim()
     if type(a) == "number" then
         a = torch.Tensor(b:size()):fill(a)
     elseif adim == 1 then
@@ -355,19 +356,18 @@ function bsxfun(oper, a, b, pos)
         b = torch.reshape(b, b:numel(), 1)
     end
 
-    local adim = a:dim()
-    local bdim = b:dim()
-    local aFirstPos = pos
-    local bFirstPos = pos
-    local aSecondPos = pos + 1
-    local bSecondPos = pos + 1
-    if adim == 1 and bdim == 1 and a:size(1) == b:size(1) then
-        return oper(a:expand(a:size(1), b:size(1)), b:expand(a:size(1), b:size(1)))
-    elseif a:size(aFirstPos) == b:size(bFirstPos) and a:size(aSecondPos) > b:size(bSecondPos) or a:size(aSecondPos) == b:size(bSecondPos) and a:size(aFirstPos) > b:size(bFirstPos) then
-        return oper(a, b:expand(a:size()))
-    elseif a:size(aFirstPos) == b:size(bFirstPos) and a:size(aSecondPos) < b:size(bSecondPos) or a:size(aSecondPos) == b:size(bSecondPos) and a:size(aFirstPos) < b:size(bFirstPos) then
-        --         print(oper(a:expand(b:size()), b):size())
-        return oper(a:expand(b:size()), b)
+    local aBigger = true
+    for i = 1, adim do
+        if a:size(i) < b:size(i) then
+            aBigger = false
+            break
+        end
+    end
+
+    if aBigger == true then
+        b = b:expand(a:size())
+    else
+        a = a:expand(b:size())
     end
 
     return oper(a, b)
