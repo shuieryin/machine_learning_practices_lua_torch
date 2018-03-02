@@ -341,7 +341,8 @@ function times(a, b)
     return torch.cmul(a, b)
 end
 
-function bsxfun(oper, a, b, isLastDim)
+function bsxfun(oper, a, b, pos)
+    pos = pos or 1
     if type(a) == "number" then
         a = torch.Tensor(b:size()):fill(a)
     elseif adim == 1 then
@@ -356,22 +357,16 @@ function bsxfun(oper, a, b, isLastDim)
 
     local adim = a:dim()
     local bdim = b:dim()
-    local aFirstPos = 1
-    local aSecondPos = 2
-    local bFirstPos = 1
-    local bSecondPos = 2
-    if isLastDim == true then
-        aFirstPos = adim - 1
-        aSecondPos = adim
-        bFirstPos = bdim - 1
-        bSecondPos = bdim
-    end
-
+    local aFirstPos = pos
+    local bFirstPos = pos
+    local aSecondPos = pos + 1
+    local bSecondPos = pos + 1
     if adim == 1 and bdim == 1 and a:size(1) == b:size(1) then
         return oper(a:expand(a:size(1), b:size(1)), b:expand(a:size(1), b:size(1)))
     elseif a:size(aFirstPos) == b:size(bFirstPos) and a:size(aSecondPos) > b:size(bSecondPos) or a:size(aSecondPos) == b:size(bSecondPos) and a:size(aFirstPos) > b:size(bFirstPos) then
         return oper(a, b:expand(a:size()))
     elseif a:size(aFirstPos) == b:size(bFirstPos) and a:size(aSecondPos) < b:size(bSecondPos) or a:size(aSecondPos) == b:size(bSecondPos) and a:size(aFirstPos) < b:size(bFirstPos) then
+        --         print(oper(a:expand(b:size()), b):size())
         return oper(a:expand(b:size()), b)
     end
 
