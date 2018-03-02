@@ -531,3 +531,11 @@ function net_summary(net)
         print(tostring(net["modules"][k]))
     end
 end
+
+function split(str, separator)
+    local splitted = {}
+    for elem in string.gmatch(str, "%s*([^%" .. separator .. "]+)%s*" .. separator .. "?") do
+        splitted[#splitted + 1] = elem
+    end
+    return splitted
+end
