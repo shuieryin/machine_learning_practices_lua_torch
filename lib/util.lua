@@ -348,12 +348,18 @@ function bsxfun(oper, a, b)
         a = torch.Tensor(b:size()):fill(a)
     elseif adim == 1 then
         a = torch.reshape(a, a:numel(), 1)
+        if bdim == 1 then
+            a = a:expand(a:size(1), b:size(1))
+        end
     end
 
     if type(b) == "number" then
         b = torch.Tensor(a:size()):fill(b)
     elseif bdim == 1 then
         b = torch.reshape(b, b:numel(), 1)
+        if adim == 1 then
+            b = b:t():expand(b:size(1), a:size(1))
+        end
     end
 
     local aBigger = true
