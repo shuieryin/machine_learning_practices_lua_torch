@@ -553,3 +553,17 @@ function split(str, separator)
     end
     return splitted
 end
+
+function scandir(directory, func)
+    local afunc = func or function(filename)
+        return filename
+    end
+    local i, t, popen = 0, {}, io.popen
+    local pfile = popen('ls "' .. directory .. '"')
+    for filename in pfile:lines() do
+        i = i + 1
+        t[i] = afunc(filename)
+    end
+    pfile:close()
+    return t
+end
