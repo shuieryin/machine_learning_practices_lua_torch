@@ -16,9 +16,7 @@ function checkCostFunction(lambda)
     --   computations should result in very similar values.
 
     -- Set lambda
-    if not lambda then
-        lambda = 0
-    end
+    lambda = lambda or 0
 
     -- Create small problem
     local X_t = torch.rand(4, 3)

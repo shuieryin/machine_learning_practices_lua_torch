@@ -7,16 +7,13 @@ require "image"
 require "hdf5"
 local Plot = require 'itorch.Plot'
 local paths = require "paths"
-
 openCmd = "start"
 if package.config:sub(1, 1):match("^/") then
     openCmd = "open"
 end
 
 function trim(s)
-    if not s then
-        return ""
-    end
+    s = s or ""
     return (s:gsub("^%s*(.-)%s*$", "%1"))
 end
 
@@ -207,7 +204,6 @@ function eyeMatrix(size)
     return mtx
 end
 
-local itorchDir = dirname(package.searchpath("torch", package.path)) .. "../itorch"
 local base_template = [[
 <script type="text/javascript">
 $(function() {
@@ -226,7 +222,7 @@ $(function() {
   s.src = url;
   s.async = true;
   s.onreadystatechange = s.onload = function(){
-      Bokeh.embed.inject_css("]] .. itorchDir .. [[/bokeh-0.7.0.min.css");
+      Bokeh.embed.inject_css("https://cdn.pydata.org/bokeh-0.12.14.min.css");
       window._bokeh_onload_callbacks.forEach(function(callback){callback()});
   };
   s.onerror = function(){
@@ -235,7 +231,7 @@ $(function() {
   document.getElementsByTagName("head")[0].appendChild(s);
     }
 
-    bokehjs_url = "]] .. itorchDir .. [[/bokeh-0.7.0.min.js"
+    bokehjs_url = "https://cdn.pydata.org/bokeh-0.12.14.min.js"
 
     var elt = document.getElementById("${window_id}");
     if(elt==null) {
@@ -271,13 +267,14 @@ $(function() {
 </script>
 ]]
 
+local embed_template = base_template .. "<div class='plotdiv' id='${div_id}'></div>"
+
 local html_template = [[
-<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="]] .. itorchDir .. [[/bokeh-0.7.0.min.css" type="text/css" />
-        <script type="text/javascript" src="]] .. itorchDir .. [[/bokeh-0.7.0.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.pydata.org/bokeh-0.12.14.min.css" type="text/css" />
+        <script type="text/javascript" src="https://cdn.pydata.org/bokeh-0.12.14.min.js"></script>
 ]] .. base_template .. [[
     </head>
     <body>
@@ -286,14 +283,10 @@ local html_template = [[
 </html>
 ]]
 
-function itorchHtml(plot, filename)
-    assert(filename and not paths.dirp(filename), 'filename has to be provided and should not be a directory')
-    local html = plot:toTemplate(html_template)
-    local f = assert(io.open(filename, 'w'), 'filename cannot be opened in write mode')
-    f:write(html)
-    f:close()
-    os.execute(openCmd .. ' "' .. paths.cwd() .. '/' .. filename .. '"')
-    return plot
+function itorchHtml(plot)
+    local html = plot:toTemplate(embed_template, 'testtest')
+    itorch.html(html)
+    return html
 end
 
 function plotTable(datas, title, xTitle, yTitle, filename)
@@ -308,17 +301,18 @@ function plotTable(datas, title, xTitle, yTitle, filename)
     itorchHtml(plot, filename .. '.html')
 end
 
-function shuffle_tensor(tensor, dim, perm)
-    if not dim then
-        dim = 1
-    end
-
-    if not perm then
-        perm = torch.randperm(tensor:size(dim))
-    end
+function shuffle_tensor(tensor, isCuda, dim, perm)
+    dim = dim or 1
+    perm = perm or torch.randperm(tensor:size(dim))
+    isCuda = isCuda or false
 
     local shuffle_indexes = perm
-    local tensor_shuffled = torch.Tensor(tensor:size())
+    local tensor_shuffled
+    if isCuda == true then
+        tensor_shuffled = torch.CudaTensor(tensor:size())
+    else
+        tensor_shuffled = torch.Tensor(tensor:size())
+    end
     for i = 1, tensor:size(dim), 1 do
         tensor_shuffled:select(dim, i)[{}] = tensor:select(dim, shuffle_indexes[i])
     end
@@ -502,17 +496,9 @@ function diag(X)
 end
 
 function plot_decision_boundary(model, X, Y, title, axesStr, libDir)
-    if not title then
-        title = ""
-    end
-
-    if not axesStr then
-        axesStr = ""
-    end
-
-    if not libDir then
-        libDir = "."
-    end
+    title = title or ""
+    axesStr = axesStr or ""
+    libDir = libDir or "."
 
     local fname = 'temp.png'
     --# Set min and max values and give it some padding
@@ -538,6 +524,31 @@ function plot_decision_boundary(model, X, Y, title, axesStr, libDir)
     image_data_pic = image_data_pic[{ { 1, 3 } }]
     itorch.image(image_data_pic)
     os.remove(fname)
+end
+
+function sub_plot(x, x_pad, libDir)
+    libDir = libDir or "../../lib"
+
+    local h5fname = paths.cwd() .. '/temp.h5'
+    local tempFile = hdf5.open(h5fname, 'w')
+    tempFile:write('x', x)
+    tempFile:write('x_pad', x_pad)
+    tempFile:close()
+
+    os.execute("python3 " .. libDir .. "/subplot.py" .. " '" .. h5fname .. "'")
+    os.remove(h5fname)
+
+    local fname = 'temp.png'
+    local image_data_pic = image.load(fname)
+    image_data_pic = image_data_pic[{ { 1, 3 } }]
+    itorch.image(image_data_pic)
+    os.remove(fname)
+end
+
+function reverse(tbl)
+    for i = 1, math.floor(#tbl / 2) do
+        tbl[i], tbl[#tbl - i + 1] = tbl[#tbl - i + 1], tbl[i]
+    end
 end
 
 function net_summary(net)
